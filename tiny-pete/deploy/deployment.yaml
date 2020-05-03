@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiny-pete
+spec:
+  selector:
+    matchLabels:
+      app: tiny-pete
+  template:
+    metadata:
+      labels:
+        app: tiny-pete
+    spec:
+      containers:
+        #! jtigger/tiny-pete:v0.0.1
+        - image: jtigger/tiny-pete@sha256:384017f19c2ec7ceedb618bf0c8012639807ac8d6a0b9283d924d470da2d28b3
+          name: webserver
