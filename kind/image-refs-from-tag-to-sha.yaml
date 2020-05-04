@@ -5,39 +5,37 @@
 ---
 #@ load("@ytt:overlay", "overlay")
 
-#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name":"ingress-nginx-controller"}})
----
+#! kindAndName yields a matcher that selects any Kubernetes resource of the specified `kind` with the given `name`.
+#@ def kindAndName(kind, name):
+#@   return overlay.subset({"kind": kind, "metadata": {"name": name}})
+#@ end
+
+#! replaceContainerImage yields an overlay fragment replacing the `image` property of the container named `container_name`
+#@ def replaceContainerImage(container_name, image):
 spec:
   template:
     spec:
       containers:
         #@overlay/match by="name"
-        - name: controller
-          #! https://quay.io/repository/kubernetes-ingress-controller/nginx-ingress-controller?tab=tags
-          #! source tag: 0.32.0
-          image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller@sha256:251e733bf41cdf726092e079d32eed51791746560fff4d59cf067508ed635287
-
-#@overlay/match by=overlay.subset({"kind": "Job", "metadata": {"name":"ingress-nginx-admission-create"}})
+        - name: #@ container_name
+          image: #@ image
+#@ end
 ---
-spec:
-  template:
-    spec:
-      containers:
-        #@overlay/match by="name"
-        - name: create
-          #! https://hub.docker.com/r/jettech/kube-webhook-certgen/tags
-          #! source tag: 1.20.0
-          image: jettech/kube-webhook-certgen@sha256:a5130405b0476373946b5c8f25a5506d0e4e480afb803ef0f0908a5ffd14111a
+
+#! source tag: 0.32.0
+#@ nginx_ingress_controller_image = "quay.io/kubernetes-ingress-controller/nginx-ingress-controller@\
+#@ sha256:251e733bf41cdf726092e079d32eed51791746560fff4d59cf067508ed635287"
+
+#@overlay/match by=kindAndName("Deployment", "ingress-nginx-controller")
+--- #@ replaceContainerImage("controller", nginx_ingress_controller_image)
 
 
-#@overlay/match by=overlay.subset({"kind": "Job", "metadata": {"name":"ingress-nginx-admission-patch"}})
----
-spec:
-  template:
-    spec:
-      containers:
-        #@overlay/match by="name"
-        - name: patch
-          #! https://hub.docker.com/r/jettech/kube-webhook-certgen/tags
-          #! source tag: 1.20.0
-          image: jettech/kube-webhook-certgen@sha256:a5130405b0476373946b5c8f25a5506d0e4e480afb803ef0f0908a5ffd14111a
+#! source tag: 1.20.0
+#@ kube_webhook_certgen_image = "jettech/kube-webhook-certgen@\
+#@ sha256:a5130405b0476373946b5c8f25a5506d0e4e480afb803ef0f0908a5ffd14111a"
+
+#@overlay/match by=kindAndName("Job", "ingress-nginx-admission-create")
+--- #@ replaceContainerImage("create", kube_webhook_certgen_image)
+
+#@overlay/match by=kindAndName("Job", "ingress-nginx-admission-patch")
+--- #@ replaceContainerImage("patch", kube_webhook_certgen_image)
