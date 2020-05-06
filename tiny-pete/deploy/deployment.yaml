@@ -1,16 +1,20 @@
+#@ load("tiny-pete.lib.star", "tiny_pete")
+#@ load("@ytt:data", "data"); d = data.values
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tiny-pete
+  name: #@ tiny_pete.name
 spec:
+  replicas: #@ d.replicas
   selector:
-    matchLabels:
-      app: tiny-pete
+    matchLabels: #@ tiny_pete.labels
   template:
     metadata:
-      labels:
-        app: tiny-pete
+      labels: #@ tiny_pete.labels
     spec:
+      imagePullSecrets: #@ d.imagePullSecrets
       containers:
         #! jtigger/tiny-pete:v0.0.1
         - image: jtigger/tiny-pete@sha256:384017f19c2ec7ceedb618bf0c8012639807ac8d6a0b9283d924d470da2d28b3

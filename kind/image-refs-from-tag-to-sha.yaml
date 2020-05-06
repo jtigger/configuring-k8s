@@ -7,37 +7,71 @@
 
 #@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name":"ingress-nginx-controller"}})
 ---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    kbld.k14s.io/images: |
+      - Metas:
+        - Tag: 0.32.0
+          Type: resolved
+          URL: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.32.0
+        URL: quay.io/kubernetes-ingress-controller/nginx-ingress-controller@sha256:251e733bf41cdf726092e079d32eed51791746560fff4d59cf067508ed635287
 spec:
   template:
     spec:
       containers:
         #@overlay/match by="name"
         - name: controller
-          #! https://quay.io/repository/kubernetes-ingress-controller/nginx-ingress-controller?tab=tags
-          #! source tag: 0.32.0
           image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller@sha256:251e733bf41cdf726092e079d32eed51791746560fff4d59cf067508ed635287
+...
+
+#@ kube_webhook_certgen_image = {
+#@   "tag": "1.20.0",
+#@   "original_url": "jettech/kube-webhook-certgen:1.20.0",
+#@   "resolved_url": "jettech/kube-webhook-certgen@\
+#@ sha256:a5130405b0476373946b5c8f25a5506d0e4e480afb803ef0f0908a5ffd14111a"
+#@ }
 
 #@overlay/match by=overlay.subset({"kind": "Job", "metadata": {"name":"ingress-nginx-admission-create"}})
 ---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    #@yaml/text-templated-strings
+    kbld.k14s.io/images: |
+      - Metas:
+        - Tag: (@= kube_webhook_certgen_image["tag"] @)
+          Type: resolved
+          URL: (@= kube_webhook_certgen_image["original_url"] @)
+        URL: (@= kube_webhook_certgen_image["resolved_url"] @)
 spec:
   template:
     spec:
       containers:
         #@overlay/match by="name"
         - name: create
-          #! https://hub.docker.com/r/jettech/kube-webhook-certgen/tags
-          #! source tag: 1.20.0
-          image: jettech/kube-webhook-certgen@sha256:a5130405b0476373946b5c8f25a5506d0e4e480afb803ef0f0908a5ffd14111a
-
+          image: #@ kube_webhook_certgen_image["resolved_url"]
 
 #@overlay/match by=overlay.subset({"kind": "Job", "metadata": {"name":"ingress-nginx-admission-patch"}})
 ---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    #@yaml/text-templated-strings
+    kbld.k14s.io/images: |
+      - Metas:
+        - Tag: (@= kube_webhook_certgen_image["tag"] @)
+          Type: resolved
+          URL: (@= kube_webhook_certgen_image["original_url"] @)
+        URL: (@= kube_webhook_certgen_image["resolved_url"] @)
 spec:
   template:
     spec:
       containers:
         #@overlay/match by="name"
         - name: patch
-          #! https://hub.docker.com/r/jettech/kube-webhook-certgen/tags
-          #! source tag: 1.20.0
-          image: jettech/kube-webhook-certgen@sha256:a5130405b0476373946b5c8f25a5506d0e4e480afb803ef0f0908a5ffd14111a
+          image: #@ kube_webhook_certgen_image["resolved_url"]
+...

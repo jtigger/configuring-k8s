@@ -1,0 +1,4 @@
+#@data/values
+---
+replicas: 1
+imagePullSecrets: []

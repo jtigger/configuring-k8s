@@ -1,13 +1,15 @@
+#@ load("tiny-pete.lib.star", "tiny_pete")
+
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: pete-on-the-web
+  name: #@ tiny_pete.name
 spec:
   rules:
   - http:
       paths:
       - path: /pete
         backend:
-          serviceName: petey
-          servicePort: 8080
+          serviceName: #@ tiny_pete.service.name
+          servicePort: #@ tiny_pete.service.port

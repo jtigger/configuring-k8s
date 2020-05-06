@@ -1,4 +1,5 @@
-#! source: https://github.com/kubernetes/ingress-nginx/tree/controller-0.32.0/deploy/static/provider/kind
+#! tag: 0.32.0
+#! source: https://github.com/kubernetes/ingress-nginx/blob/446845114c6ef610c04a95b339c75bb69ab01295/deploy/static/provider/kind/deploy.yaml
 ---
 apiVersion: v1
 kind: Namespace

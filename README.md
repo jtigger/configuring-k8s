@@ -18,13 +18,14 @@
     ```console
     $ curl localhost
     ```
+   TODO: explain what the result _should_ look like.
 4. install `tiny-pete` — the application:
     ```console
-    $ kubectl apply -f tiny-pete/deploy
+    $ ytt -f tiny-pete/deploy/ | kubectl apply -f -
     ```
 5. verify the deployment:
     ```console
-    $ curl http://localhost/petey/
+    $ curl http://localhost/pete
     ```
 
 ---
